@@ -9,6 +9,34 @@
 
 \---
 
+## 🆕 Sprint 04 — RAG medido, confiável e utilizável
+
+Evolução do mesmo projeto: o chatbot agora responde sobre uma **base de conhecimento documental** (manuais, regimento de carregamento, FAQ, tarifas) com **ChromaDB persistente + `nomic-embed-text`**, **grounding com citação de fonte**, **recusa fora do contexto**, **proteção contra prompt injection via documentos**, **avaliação por iteração** (RAGAS ou fallback documentado) e **interface web com a fonte visível**.
+
+| Item | Onde |
+|---|---|
+| Base de conhecimento (PDFs; conteúdo fictício/ilustrativo) | `data/knowledge_base/` (fontes em `data/kb_fontes_md/`, gerador `scripts/gerar_pdfs_kb.py`) |
+| Pipeline RAG | `src/rag/` (`loader`, `chunking`, `embeddings`, `vector_store`, `retriever`, `prompt_rag`, `guardrails`, `llm`, `pipeline`) |
+| Interface (Streamlit) | `app/app.py` + `app/README.md` |
+| Avaliação por iteração | `evals/` (`eval_set.json`, `iteracoes.json`, `run_eval.py`, `compare_models.py`, `rubrica_fallback.md`, `resultados/`) |
+| Relatórios | `docs/relatorio_rag.md`, `docs/relatorio_modelos.md`, `docs/relatorio_evolucao_sprint04.pdf` |
+
+```bash
+pip install -r requirements.txt -r requirements-rag.txt
+cp .env.example .env                       # preencha OLLAMA_API_KEY (o .env não vai para o Git)
+python scripts/indexar.py                  # indexa a base no ChromaDB (data/chroma_db)
+streamlit run app/app.py                   # interface
+python evals/calibrar_limiar.py            # escolhe o limiar de similaridade
+python evals/run_eval.py --todas           # it0..it3 sobre o eval set
+python evals/compare_models.py --llms ollama:gpt-oss:120b,gemini:gemini-2.5-flash
+python evals/atualizar_docs.py             # preenche as tabelas dos relatórios e gera o PDF
+python tests/rag/test_rag.py               # testes de código (stubs; não medem a qualidade do RAG)
+```
+> Os scores dos relatórios saem **somente** de execuções reais (`evals/resultados/*.json`); enquanto não existirem, aparecem como "pendente".
+
+
+---
+
 ## 1\. Equipe
 
 |Enzo Guislandi|RM - 569885|
